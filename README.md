@@ -4,6 +4,21 @@
 
 基于 Node.js 和 Electron 开发的 Bilibili 视频、弹幕下载器。
 
+## 🚀 快速开始
+
+### 方式1：图形界面版本（推荐新手）
+```bash
+npm install
+npm start
+```
+
+### 方式2：命令行版本（适合服务器/批量下载）
+```bash
+npm install
+npm install qrcode-terminal  # CLI版本额外依赖
+npm run cli
+```
+
 ![](screenshot.png)
 
 ## 功能
@@ -13,6 +28,7 @@
 - 根据视频 `cid` 获取视频弹幕的内容并支持转换下载格式（`.xml` 或 `.ass`）
 - 下载视频和音频文件（格式分别为 `.mp4` 及 `.m4a`），支持断点续传
 - 下载完成后支持自动使用 `ffmpeg` 合并视频和音频文件
+- **🆕 CLI版本支持终端二维码登录和批量下载**
 
 目前的局限性：
 - 由于 Bilibili 限制，在未登录情况下只能获得低清晰度视频
@@ -64,6 +80,56 @@ ffmpeg -i input_video.mp4 -i input_audio.m4a -c:v copy -c:a aac output_file.mp4
 - [XML 转 ASS 库](https://github.com/tiansh/us-danmaku) 以及 bilibili ASS Danmaku Downloader by tiansh, Mozilla Public License 2.0
 - [bilitwin](https://github.com/Xmader/bilitwin) by Xmader
 - [bili-api](https://github.com/simon300000/bili-api) by simon300000
+
+## CLI 版本使用说明
+
+项目现已支持完全独立的命令行版本，无需安装 Electron，适合服务器环境和批量下载。
+
+### 安装 CLI 依赖
+
+```bash
+npm install qrcode-terminal
+```
+
+### 基本使用
+
+```bash
+# 登录（显示终端二维码）
+npm run login
+
+# 下载视频
+npm run cli
+
+# 自定义参数
+node cli.js -u my_urls.txt -o ./downloads
+```
+
+### 命令行参数
+
+- `-u, --urls <文件>`: 指定URL文件路径 (默认: video_urls.txt)
+- `-o, --output <目录>`: 指定输出目录 (默认: downloads)
+- `-l, --login`: 仅执行登录操作
+- `-h, --help`: 显示帮助信息
+
+### URL 文件格式
+
+创建 `video_urls.txt` 文件，每行一个视频链接：
+
+```
+https://www.bilibili.com/video/BV1xxx
+https://www.bilibili.com/video/BV2xxx
+```
+
+### 特性
+
+- ✅ 完全独立，不依赖 Electron
+- ✅ 终端二维码登录
+- ✅ 批量下载支持
+- ✅ 智能文件命名（避免覆盖）
+- ✅ 断点续传
+- ✅ 完整的错误处理
+
+详细说明请查看 [CLI_USAGE.md](CLI_USAGE.md)
 
 ## 许可证
 

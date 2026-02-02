@@ -3,6 +3,23 @@ const { app, ipcMain, dialog, BrowserWindow, Menu, MenuItem, shell, screen } = r
 
 let length;
 
+// 检查是否是CLI模式
+const cliMode = process.argv.includes('--cli');
+if (cliMode) {
+	// 延迟加载download，避免early access到screen
+	const { main: downloadMain } = require('./download');
+	app.on('ready', () => {
+		const urlFile = process.argv[process.argv.indexOf('--cli') + 1] || 'video_urls.txt';
+		const outputDir = process.argv[process.argv.indexOf('--cli') + 2] || 'downloads';
+		downloadMain(urlFile, outputDir).then(() => {
+			process.exit(0);
+		}).catch(error => {
+			console.error(error);
+			process.exit(1);
+		});
+	});
+}
+
 function createPanel() {
 
 	const mainWindow = new BrowserWindow({
@@ -45,7 +62,9 @@ function createPanel() {
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
-	createPanel();
+	if (!cliMode) {
+		createPanel();
+	}
 
 	app.on("activate", () => {
 		// On macOS it's common to re-create a window in the app when the

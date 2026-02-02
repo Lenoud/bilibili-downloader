@@ -225,6 +225,48 @@ class Downloader {
 		await streamPipeline(response.body, proStream, stream);
 		return stream.path;
 	}
+
+	// 非UI模式下载文件 - CLI使用
+	async downloadFile(url, filePath, onProgress = null) {
+		const cookies = LoginHelper.getLoginInfoCookies();
+		const headers = {
+			"User-Agent": USER_AGENT,
+			'Referer': BILIBILI_URL,
+			'Origin': BILIBILI_URL,
+		};
+		
+		if (cookies) {
+			headers['Cookie'] = cookies.getCookieStringSync(BILIBILI_URL);
+		}
+
+		let state;
+		try {
+			state = fs.statSync(filePath);
+			headers['Range'] = `bytes=${state.size}-`; // 断点续传
+		} catch {
+			// 文件不存在，从头开始下载
+		}
+
+		const stream = fs.createWriteStream(filePath, state ? { flags: "a" } : {});
+		
+		const response = await fetch(url, {
+			redirect: 'follow',
+			headers
+		});
+
+		if (!response.ok) {
+			throw new Error(`Failed to download. Status code: ${response.status}`);
+		}
+
+		const contentLength = parseInt(response.headers.get('content-length'), 10);
+		
+		return new Promise((resolve, reject) => {
+			response.body.on('error', reject);
+			stream.on('error', reject);
+			stream.on('finish', () => resolve(filePath));
+			response.body.pipe(stream);
+		});
+	}
 }
 
 module.exports = { Task, Downloader };

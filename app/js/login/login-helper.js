@@ -76,8 +76,10 @@ class LoginHelper {
             fs.writeFileSync(tempFile, cookieJSON);
             fs.copyFileSync(tempFile, LOCAL_LOGIN_INFO);
             fs.unlinkSync(tempFile);
+            return true; // 成功保存
         } catch (err) {
             console.error('SaveLoginInfoCookies()发生异常:', err);
+            return false; // 保存失败
         }
     }
 
